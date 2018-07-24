@@ -11,7 +11,7 @@ from tornado.options import define, options
 define("port", default=19999)
 
 async_client = tornado.httpclient.AsyncHTTPClient(max_clients=100)
-construct_url = "http://192.168.32.222:19999/mss?"
+construct_url = "http://192.168.2.25:19999/mss?"
 # https://192.168.32.222:19999/mss?https://mp.weixin.qq.com/s?__biz=MzIxMzEzMjM5NQ==&mid=2651029560&idx=1&sn=437d90c61f84ea357c885dc8f94cea2b&chksm=8c4c553cbb3bdc2a0cdd2840e3d7ccfbecb62c83df3908f375bf587b0a0ed5504c73e55debe9&scene=38#wechat_redirect
 
 class defaultHandler(tornado.web.RequestHandler):
@@ -25,7 +25,11 @@ class defaultHandler(tornado.web.RequestHandler):
         except Exception as e:
             self.finish(traceback.format_exc())
 
-        response = self.convert(result.body)
+        self.set_header("Content-Type", result.headers["Content-Type"])
+        if "text/html" in result.headers["Content-Type"]:
+            response = self.convert(result.body)
+        else:
+            response = result.body
         self.finish(response)
 
 
@@ -58,6 +62,7 @@ def init():
         http_server.listen(options.port)
 
         print "init success:", options.port
+        print "http://192.168.2.25:19999/mss?xxxxxx"
     except:
         print traceback.format_exc()
 

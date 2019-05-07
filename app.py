@@ -1,8 +1,4 @@
 #coding=utf8
-import sys
-reload(sys)
-sys.setdefaultencoding("utf-8")
-
 import re, datetime, json, time, traceback
 import tornado
 from tornado import (gen, httpserver, ioloop, web, httpclient)
@@ -10,8 +6,9 @@ from tornado import (gen, httpserver, ioloop, web, httpclient)
 from tornado.options import define, options
 define("port", default=19999)
 
+local_host = "127.0.0.1"
 async_client = tornado.httpclient.AsyncHTTPClient(max_clients=100)
-construct_url = "http://192.168.2.25:19999/mss?"
+construct_url = "http://%s:19999/mss?" % local_host
 # https://192.168.32.222:19999/mss?https://mp.weixin.qq.com/s?__biz=MzIxMzEzMjM5NQ==&mid=2651029560&idx=1&sn=437d90c61f84ea357c885dc8f94cea2b&chksm=8c4c553cbb3bdc2a0cdd2840e3d7ccfbecb62c83df3908f375bf587b0a0ed5504c73e55debe9&scene=38#wechat_redirect
 
 class defaultHandler(tornado.web.RequestHandler):
@@ -27,7 +24,7 @@ class defaultHandler(tornado.web.RequestHandler):
 
         self.set_header("Content-Type", result.headers["Content-Type"])
         if "text/html" in result.headers["Content-Type"]:
-            response = self.convert(result.body)
+            response = self.convert(result.body.decode("utf8"))
         else:
             response = result.body
         self.finish(response)
@@ -61,10 +58,10 @@ def init():
         http_server = tornado.httpserver.HTTPServer(app)
         http_server.listen(options.port)
 
-        print "init success:", options.port
-        print "http://192.168.2.25:19999/mss?xxxxxx"
+        print("init success:", options.port)
+        print("http://%s:19999/mss?xxxxxx" % local_host)
     except:
-        print traceback.format_exc()
+        print(traceback.format_exc())
 
 
 if __name__ == "__main__":
